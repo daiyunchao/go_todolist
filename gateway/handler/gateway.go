@@ -2,7 +2,11 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"go_todolist/common/define"
+	"go_todolist/common/lib"
+	"go_todolist/gateway/gwDefine"
+	"go_todolist/gateway/proto"
 	"sync"
 )
 
@@ -19,12 +23,21 @@ func GetGateway() *Handler {
 	return instance
 }
 
+func decodeRequest(req define.Request, dist any) {
+	bytes, _ := json.Marshal(req.Data)
+	json.Unmarshal(bytes, dist)
+}
 func (handler *Handler) Login(ctx context.Context, request *define.Request) *define.Response {
-	res := &define.Response{
-		Code: 200,
+	conn, client := GetRpcServer().getUserConn()
+	defer client.Close()
+	req := gwDefine.RequestLogin{}
+	decodeRequest(*request, &req)
+	rpcReq := &proto.RequestGetUserInfoByNickname{
+		Nickname: req.Nickname,
 	}
-	userData := make(map[string]any)
-	userData["nickname"] = "Tom"
-	res.Data = userData
-	return res
+	rpcRes, err := conn.GetUserInfoByNickname(ctx, rpcReq)
+	if err != nil {
+		return lib.CreateResponseError(define.ServerError, define.ServerErrorMsg)
+	}
+	return lib.CreateResponseSuccess(rpcRes)
 }
