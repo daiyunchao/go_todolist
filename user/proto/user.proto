@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package="./;proto";
+package proto;
+
+service RemoteUser {
+  rpc GetUserInfo (RequestGetUserInfo) returns (ResponseGetUserInfo){}
+}
+
+message RequestGetUserInfo {
+  string Id =1;
+}
+
+message ResponseGetUserInfo{
+  string Id =1;
+  string Nickname =2;
+}
