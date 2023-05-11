@@ -14,6 +14,7 @@ func main() {
 	rpcServer := proto.Server{}
 	address := fmt.Sprintf("127.0.0.1:%s", port)
 	go rpcServer.RegisterServer(address)
+	go rpcServer.RegisterEtcdServer(address)
 	fmt.Printf("listen address %s\n", address)
 	select {}
 }
